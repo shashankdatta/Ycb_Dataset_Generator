@@ -8,16 +8,40 @@
 import os
 import sys
 import json
+import shutil
 import urllib
 from urllib.request import Request, urlopen
 
 
 # Define an output folder
 output_directory = os.path.join("models", "ycb")
+models_folder_location = f'{os.getcwd()}/models'  
 
 # Define a list of objects to download from
 # http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/
-objects_to_download = "004_sugar_box"
+
+few_Objects = ["001_chips_can", 
+                "002_master_chef_can",
+                "003_cracker_box",
+                "004_sugar_box"]
+
+two_objects = ["004_sugar_box", 
+                "001_chips_can", 
+                "002_master_chef_can"]
+
+user_input = int(input("Choose:\n\t1 => 4 objects\n\t2 => 3 objects\
+                    \n\t911 => all objects\n\nYour Response:\t"))
+
+if (user_input == 1):
+    objects_to_download = few_Objects
+elif(user_input == 2):
+    objects_to_download = two_objects
+elif(user_input == 911):
+    objects_to_download = "all"
+
+# print(objects_to_download)
+# exit(0)
+
 # objects_to_download = ["001_chips_can", 
 #                        "002_master_chef_can",
 #                        "003_cracker_box",
@@ -41,9 +65,10 @@ extract = True
 base_url = "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/"
 objects_url = "https://ycb-benchmarks.s3.amazonaws.com/data/objects.json"
 
-if not os.path.exists(output_directory):
-    os.makedirs(output_directory)
-
+# Remove Models Folder:
+if(os.path.exists(models_folder_location)):
+    shutil.rmtree(models_folder_location)
+os.makedirs(output_directory)
 
 def fetch_objects(url):
     """ Fetches the object information before download """
@@ -101,9 +126,7 @@ def check_url(url):
     except Exception as e:
         return False
 
-
-if __name__ == "__main__":
-
+def main():
     # Grab all the object information
     objects = fetch_objects(objects_url)
 
@@ -121,3 +144,6 @@ if __name__ == "__main__":
                 download_file(url, filename)
                 if extract:
                     extract_tgz(filename, output_directory)
+
+if __name__ == "__main__":
+    main()

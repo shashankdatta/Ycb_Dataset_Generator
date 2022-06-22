@@ -1,14 +1,41 @@
-import glob, os, time, torch, uuid
+import glob, os, time, torch, uuid, shutil
+from tkinter.ttk import Treeview 
+import download_ycb_dataset as download_ycb
 import numpy as np
 from matplotlib import pyplot as plt
 import cv2 as cv
 
+
 def main():
     ycb_download_location = f'{os.getcwd()}/models/ycb'
     object_class = 0
+    objects_array = []
+
+    ## Download All The Needed Models:
+    download_ycb.main()
+
     for object_name in os.listdir(ycb_download_location):
-        i = 0
+        objects_array.append(object_name)
+
+        # i = 0
         masks_directory_location = f'{ycb_download_location}/{object_name}/masks' 
+        labels_folder_path = os.path.join(ycb_download_location,object_name,"labels")
+        
+        ## For Making Labels Folder For Each Object:
+        if os.path.exists(labels_folder_path):
+            shutil.rmtree(labels_folder_path)
+        os.mkdir(labels_folder_path)
+        
+        ## For Removing 'Poses' Folder And 'calibration.h5' File:
+        poses_folder_location = f'{ycb_download_location}/{object_name}/poses'
+        calibration_file_location = f'{ycb_download_location}/{object_name}/calibration.h5'
+        
+        if os.path.exists(poses_folder_location):
+            shutil.rmtree(poses_folder_location)
+
+        if os.path.exists(calibration_file_location):
+            os.remove(calibration_file_location)
+
         for mask_name, img_name in zip(sorted(os.listdir(masks_directory_location), key=maskParseFilter), 
             sorted(glob.glob1(f'{ycb_download_location}/{object_name}', '*.jpg'), key=imgParseFilter)):
             
@@ -40,16 +67,24 @@ def main():
             # normalizedBBoxCoordinates = normalize_bbox(0, x - 35, y - 35, w + 80, h + 90, w_img, h_img)
 
             # print (" ".join(map(str, normalizedBBoxCoordinates)))
-            file_unique_id = uuid.uuid1()
-            folder_path = os.path.join(ycb_download_location,object_name,"labels")
-            file_path = os.path.join(folder_path, object_name + '.' + str(file_unique_id) + '.txt')
             
-            if not os.path.exists(folder_path):
-                os.mkdir(folder_path)
-
+            ## For Making bBox Coordinates text file:
+            file_unique_id = uuid.uuid1()
+            img_name_modified = img_name.replace('.', '_')
+            file_path = os.path.join(labels_folder_path, f'{object_name}_{img_name_modified}.{file_unique_id}.txt')
+            
             with open(file_path, "w") as file:
                 file.write(" ".join(map(str, normalizedBBoxCoordinates)))
+            
+            ## For Renaming Images' Name:
+            old_img_name = f'{ycb_download_location}/{object_name}/{img_name}'
+            img_name_split = img_name.split('.')
+            new_img_name = f'{ycb_download_location}/{object_name}/{object_name}_{img_name_modified}.{file_unique_id}.{img_name_split[1]}'
 
+            if old_img_name != new_img_name:
+                os.rename(old_img_name, new_img_name)
+            else:
+                print("else hit") 
 
             ## For Finding All Contours:
             # for c in contours:
@@ -64,7 +99,7 @@ def main():
             # plt.show(block=False)
             
             ## For cv Image View:
-            i += 1
+            # i += 1
             # img = cv.resize(img_rgb, (960, 540))
             # cv.imshow(f"Image {i}", img)
             
@@ -80,6 +115,18 @@ def main():
             # cv.waitKey(1000) 
             # cv.destroyAllWindows()
         object_class += 1
+    generate_data_yaml(objects_array)
+
+def generate_data_yaml(objects_array):
+    models_folder_location = f'{os.getcwd()}/models'    
+    data_yaml_filepath = f"{models_folder_location}/data.yaml"
+    object_classes = len(objects_array)
+    with open(data_yaml_filepath, "w") as file:
+        file.write(f'train: ../train/images\n\
+        val: ../train/images\n\n\
+        nc: {object_classes}\
+        names: {objects_array}')
+    os.rename(f"{models_folder_location}/ycb", f"{models_folder_location}/train")
 
 def maskParseFilter(fname):
     prefix, n1, n2 = fname.split('_')
