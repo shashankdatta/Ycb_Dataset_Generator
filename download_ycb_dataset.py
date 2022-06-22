@@ -20,24 +20,16 @@ models_folder_location = f'{os.getcwd()}/models'
 # Define a list of objects to download from
 # http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/
 
-few_Objects = ["001_chips_can", 
-                "002_master_chef_can",
-                "003_cracker_box",
-                "004_sugar_box"]
+one_object = ["001_chips_can"]
 
 two_objects = ["004_sugar_box", 
                 "001_chips_can", 
                 "002_master_chef_can"]
 
-user_input = int(input("Choose:\n\t1 => 4 objects\n\t2 => 3 objects\
-                    \n\t911 => all objects\n\nYour Response:\t"))
-
-if (user_input == 1):
-    objects_to_download = few_Objects
-elif(user_input == 2):
-    objects_to_download = two_objects
-elif(user_input == 911):
-    objects_to_download = "all"
+four_Objects = ["001_chips_can", 
+                "002_master_chef_can",
+                "003_cracker_box",
+                "004_sugar_box"]
 
 # print(objects_to_download)
 # exit(0)
@@ -64,11 +56,6 @@ extract = True
 
 base_url = "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/"
 objects_url = "https://ycb-benchmarks.s3.amazonaws.com/data/objects.json"
-
-# Remove Models Folder:
-if(os.path.exists(models_folder_location)):
-    shutil.rmtree(models_folder_location)
-os.makedirs(output_directory)
 
 def fetch_objects(url):
     """ Fetches the object information before download """
@@ -127,6 +114,25 @@ def check_url(url):
         return False
 
 def main():
+    user_input = int(input("Choose:\n\t1 => 1 objects\n\t2 => 2 objects\n\t\
+                            4 => 4 objects\\n\t\
+                            911 => all objects\n\n\
+                            Your Response:\t"))
+
+    if(user_input == 1):
+        objects_to_download = one_object
+    elif (user_input == 2):
+        objects_to_download = two_objects
+    elif(user_input == 3):
+        objects_to_download = four_Objects
+    elif(user_input == 911):
+        objects_to_download = "all"
+
+    # Remove Models Folder:
+    if(os.path.exists(models_folder_location)):
+        shutil.rmtree(models_folder_location)
+    os.makedirs(output_directory)
+
     # Grab all the object information
     objects = fetch_objects(objects_url)
 

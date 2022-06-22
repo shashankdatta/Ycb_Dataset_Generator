@@ -1,4 +1,4 @@
-import glob, os, time, torch, uuid, shutil
+import glob, os, time, torch, uuid, shutil, inspect
 from tkinter.ttk import Treeview 
 import download_ycb_dataset as download_ycb
 import numpy as np
@@ -63,7 +63,7 @@ def main():
             w_img = img.shape[1]
             h_img = img.shape[0]
             
-            normalizedBBoxCoordinates = normalize_bbox(object_class, x, y, w, h, w_img, h_img) 
+            normalizedBBoxCoordinates = normalize_bbox(object_class, x - 15, y - 15, w + 30, h + 30, w_img, h_img) 
             # normalizedBBoxCoordinates = normalize_bbox(0, x - 35, y - 35, w + 80, h + 90, w_img, h_img)
 
             # print (" ".join(map(str, normalizedBBoxCoordinates)))
@@ -116,16 +116,20 @@ def main():
             # cv.destroyAllWindows()
         object_class += 1
     generate_data_yaml(objects_array)
+    restructure_folder()
+
+def restructure_folder():
+    print("Not Yet Implemented")
 
 def generate_data_yaml(objects_array):
     models_folder_location = f'{os.getcwd()}/models'    
     data_yaml_filepath = f"{models_folder_location}/data.yaml"
     object_classes = len(objects_array)
     with open(data_yaml_filepath, "w") as file:
-        file.write(f'train: ../train/images\n\
-        val: ../train/images\n\n\
-        nc: {object_classes}\
-        names: {objects_array}')
+        file.write(inspect.cleandoc(f'''train: ../train/images
+            val: ../train/images\n
+            nc: {object_classes}
+            names: {objects_array}'''))
     os.rename(f"{models_folder_location}/ycb", f"{models_folder_location}/train")
 
 def maskParseFilter(fname):
