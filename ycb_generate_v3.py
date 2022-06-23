@@ -8,23 +8,31 @@ import cv2 as cv
 
 def main():
     ycb_download_location = f'{os.getcwd()}/models/ycb'
+    train_folder_location = f'{os.getcwd()}/models/train'
     object_class = 0
     objects_array = []
-
+    
+    labels_folder_path = os.path.join(train_folder_location,"labels")
+    images_folder_path = os.path.join(train_folder_location,"images")
+    
     ## Download All The Needed Models:
-    download_ycb.main()
+    # download_ycb.main()
+    
+    ## For Making Labels Folder For Each Object:
+    if os.path.exists(labels_folder_path):
+        shutil.rmtree(labels_folder_path)
+
+    if os.path.exists(images_folder_path):
+        shutil.rmtree(images_folder_path)
+
+    os.makedirs(labels_folder_path, exist_ok=False)
+    os.makedirs(images_folder_path, exist_ok=False)
 
     for object_name in os.listdir(ycb_download_location):
         objects_array.append(object_name)
 
         # i = 0
         masks_directory_location = f'{ycb_download_location}/{object_name}/masks' 
-        labels_folder_path = os.path.join(ycb_download_location,object_name,"labels")
-        
-        ## For Making Labels Folder For Each Object:
-        if os.path.exists(labels_folder_path):
-            shutil.rmtree(labels_folder_path)
-        os.mkdir(labels_folder_path)
         
         ## For Removing 'Poses' Folder And 'calibration.h5' File:
         poses_folder_location = f'{ycb_download_location}/{object_name}/poses'
@@ -49,7 +57,7 @@ def main():
 
             ROI_number = 0
 
-            contours = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+            contours, hierarchy  = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
             sorted_contours = sorted(contours, key=cv.contourArea, reverse= True)
 
             x,y,w,h = cv.boundingRect(sorted_contours[0])
@@ -79,18 +87,10 @@ def main():
             ## For Renaming Images' Name:
             old_img_name = f'{ycb_download_location}/{object_name}/{img_name}'
             img_name_split = img_name.split('.')
-            new_img_name = f'{ycb_download_location}/{object_name}/{object_name}_{img_name_modified}.{file_unique_id}.{img_name_split[1]}'
+            new_img_name = f'{images_folder_path}/{object_name}_{img_name_modified}.{file_unique_id}.{img_name_split[1]}'
 
-            if old_img_name != new_img_name:
-                os.rename(old_img_name, new_img_name)
-            else:
-                print("else hit") 
-
-            ## For Finding All Contours:
-            # for c in contours:
-            #     x,y,w,h = cv.boundingRect(c)
-            #     print([x,y,w,h])
-            #     cv.rectangle(img_rgb, (x - 25, y - 25), (x + w + 25, y + h + 25), (255,0,0), 5)
+            # os.rename(old_img_name, new_img_name)
+            shutil.move(old_img_name, new_img_name)
 
             ## For Matplotlib Plots:
             # fig = plt.figure(figsize = (7, 7))
@@ -116,10 +116,7 @@ def main():
             # cv.destroyAllWindows()
         object_class += 1
     generate_data_yaml(objects_array)
-    restructure_folder()
-
-def restructure_folder():
-    print("Not Yet Implemented")
+    shutil.rmtree(ycb_download_location)
 
 def generate_data_yaml(objects_array):
     models_folder_location = f'{os.getcwd()}/models'    
@@ -130,7 +127,6 @@ def generate_data_yaml(objects_array):
             val: ../train/images\n
             nc: {object_classes}
             names: {objects_array}'''))
-    os.rename(f"{models_folder_location}/ycb", f"{models_folder_location}/train")
 
 def maskParseFilter(fname):
     prefix, n1, n2 = fname.split('_')

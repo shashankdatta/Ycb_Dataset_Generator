@@ -10,6 +10,7 @@ import sys
 import json
 import shutil
 import urllib
+import inspect
 from urllib.request import Request, urlopen
 
 
@@ -114,11 +115,12 @@ def check_url(url):
         return False
 
 def main():
-    user_input = int(input("Choose:\n\t1 => 1 objects\n\t\
-                            2 => 2 objects\n\t\
-                            4 => 4 objects\n\t\
-                            911 => all objects\n\n\
-                            Your Response:\t"))
+    user_input = int(input(inspect.cleandoc("Choose:\n\t\
+        1 => 1 objects\n\t\
+        2 => 2 objects\n\t\
+        4 => 4 objects\n\t\
+        911 => all objects\n\n\
+        Your Response:\t")))
 
     if(user_input == 1):
         objects_to_download = one_object
