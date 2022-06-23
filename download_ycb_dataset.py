@@ -114,8 +114,9 @@ def check_url(url):
         return False
 
 def main():
-    user_input = int(input("Choose:\n\t1 => 1 objects\n\t2 => 2 objects\n\t\
-                            4 => 4 objects\\n\t\
+    user_input = int(input("Choose:\n\t1 => 1 objects\n\t\
+                            2 => 2 objects\n\t\
+                            4 => 4 objects\n\t\
                             911 => all objects\n\n\
                             Your Response:\t"))
 

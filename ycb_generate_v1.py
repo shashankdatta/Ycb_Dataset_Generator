@@ -1,63 +1,71 @@
-import time
+import time, os
 from matplotlib import pyplot as plt
 import cv2 as cv
 
-img = cv.imread('./N1_0_mask.pbm', -1)
-# img = cv.imread('./6399621.jpg', -1)
-imgs = cv.cvtColor(img.copy(), cv.COLOR_BGR2RGB)
-imgRGB = cv.cvtColor(imgs, cv.COLOR_RGB2GRAY)
-thresh = cv.threshold(imgRGB, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)[1]
+ycb_download_location = f'{os.getcwd()}/models/ycb'
+masks_directory_location = f'{ycb_download_location}/001_chips_can/masks'
 
+def maskParseFilter(fname):
+    prefix, n1, n2 = fname.split('_')
+    return (prefix, int(n1))
 
-# _, ctrs, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+# This function allows us to create a descending sorted list of contour areas.
+def get_contour_areas(contours):
 
-# boxes = []
-# for ctr in ctrs:
-#     x, y, w, h = cv.boundingRect(ctr)
-#     boxes.append([x, y, w, h])
+    ## Method 1:
+    # all_areas= []
 
-# for box in boxes:
-#     top_left     = (box[0], box[1])
-#     bottom_right = (box[0] + box[2], box[1] + box[3])
-#     cv.rectangle(img, top_left, bottom_right, (0,255,0), 2)
+    # for cnt in contours:
+    #     area = cv.contourArea(cnt)
+    #     all_areas.append(area)
 
+    ## Method 2:
+    contours = list(map(cv.contourArea, contours))
 
-ROI_number = 0
-contours = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-# print(len(contours))
-contours = contours[0] if len(contours) == 2 else contours[1]
+    # print(all_areas)
+    # print(contours)
 
+    return contours
 
-x,y,w,h = cv.boundingRect(contours[len(contours) - 1])
-print([x,y,w,h])
-cv.rectangle(imgs, (x - 25, y - 25), (x + w + 25, y + h + 25), (255,0,0), 5)
+for mask_name in sorted(os.listdir(masks_directory_location), key=maskParseFilter):
+    img = cv.imread(f'{masks_directory_location}/{mask_name}', -1)
+    # img = cv.imread('./6399621.jpg', -1)
+    imgs = cv.cvtColor(img.copy(), cv.COLOR_BGR2RGB)
+    imgRGB = cv.cvtColor(imgs, cv.COLOR_RGB2GRAY)
+    thresh = cv.threshold(imgRGB, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)[1]
 
-# for c in contours:
-#     x,y,w,h = cv.boundingRect(c)
-#     print([x,y,w,h])
-#     cv.rectangle(imgs, (x - 25, y - 25), (x + w + 25, y + h + 25), (255,0,0), 5)
+    ROI_number = 0
+    contours, her = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
-# To draw all the contours in an image:
-# cv.drawContours(imgs, contours, -1, (0,255,0), 3)
+    # cnt_area = get_contour_areas(contours)   
 
-# To draw an individual contour, say 4th contour:
-# cv.drawContours(imgs, contours, 3, (0,255,0), 3)
+    sorted_contours = sorted(contours, key=cv.contourArea, reverse= True)
+    
+    x,y,w,h = cv.boundingRect(sorted_contours[0])
+    
+    cv.rectangle(imgs, (x, y), (x + w, y + h), (255,0,0), 15)
 
-# But most of the time, below method will be useful:
-# cnt = contours[4]
-# cv.drawContours(imgs, [cnt], 0, (0,255,0), 100)
+    # To draw all the contours in an image:
+    # cv.drawContours(imgs, contours, -1, (0,255,0), 3)
 
-# img = cv.resize(img, (960, 540))
-fig = plt.figure(figsize = (7, 7))
+    # To draw an individual contour, say 4th contour:
+    # cv.drawContours(imgs, contours, 3, (0,255,0), 3)
 
-ax = fig.add_subplot(111)
-ax.imshow(imgs)
-plt.show(block=False)
+    # But most of the time, below method will be useful:
+    # cnt = contours[4]
+    # cv.drawContours(imgs, [cnt], 0, (0,255,0), 100)
 
-plt.pause(9)
+    img = cv.resize(imgs, (960, 540))
+    # fig = plt.figure(figsize = (7, 7))
 
-plt.close('all')
+    # ax = fig.add_subplot(111)
+    # ax.imshow(imgs)
+    # plt.show(block=False)
 
-# cv.imshow("Img", img)
-# cv.waitKey(0) 
-# cv.destroyAllWindows()
+    # plt.pause(9)
+
+    # plt.close('all')
+
+    cv.imshow(f"{mask_name}", img)
+    cv.waitKey(500) 
+    cv.destroyAllWindows()
