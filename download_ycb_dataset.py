@@ -116,7 +116,7 @@ def check_url(url):
 
 def main():
     user_input = int(input(inspect.cleandoc("Choose:\n\t\
-        1 => 1 objects\n\t\
+        1 => 1 object\n\t\
         2 => 2 objects\n\t\
         4 => 4 objects\n\t\
         911 => all objects\n\n\

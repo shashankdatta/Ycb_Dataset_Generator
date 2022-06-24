@@ -16,7 +16,7 @@ def main():
     images_folder_path = os.path.join(train_folder_location,"images")
     
     ## Download All The Needed Models:
-    # download_ycb.main()
+    download_ycb.main()
     
     ## For Making Labels Folder For Each Object:
     if os.path.exists(labels_folder_path):
@@ -71,7 +71,7 @@ def main():
             w_img = img.shape[1]
             h_img = img.shape[0]
             
-            normalizedBBoxCoordinates = normalize_bbox(object_class, x - 15, y - 15, w + 30, h + 30, w_img, h_img) 
+            normalizedBBoxCoordinates = normalize_bbox(object_class, x - 10, y - 10, w + 10, h + 10, w_img, h_img) 
             # normalizedBBoxCoordinates = normalize_bbox(0, x - 35, y - 35, w + 80, h + 90, w_img, h_img)
 
             # print (" ".join(map(str, normalizedBBoxCoordinates)))
