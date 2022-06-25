@@ -1,10 +1,9 @@
-import glob, os, time, torch, uuid, shutil, inspect, yaml
+import glob, os, time, torch, uuid, shutil, inspect, ruamel.yaml
 from tkinter.ttk import Treeview 
 import download_ycb_dataset as download_ycb
 import numpy as np
 from matplotlib import pyplot as plt
 import cv2 as cv
-
 
 def main():
     ycb_download_location = f'{os.getcwd()}/models/ycb'
@@ -118,16 +117,6 @@ def main():
     generate_data_yaml(objects_array)
     shutil.rmtree(ycb_download_location)
 
-def generate_data_yaml(objects_array):
-    models_folder_location = f'{os.getcwd()}/models'    
-    data_yaml_filepath = f"{models_folder_location}/data.yaml"
-    object_classes = len(objects_array)
-    with open(data_yaml_filepath, "w") as file:
-        file.write(inspect.cleandoc(f'''train: ../train/images
-            val: ../train/images\n
-            nc: {object_classes}
-            names: {objects_array}'''))
-
 def maskParseFilter(fname):
     prefix, n1, n2 = fname.split('_')
     return (prefix, int(n1))
@@ -143,6 +132,49 @@ def normalize_bbox(label_index, xmin, ymin,
     w = w / w_img
     h = h / h_img
     return [label_index, xcenter, ycenter, w, h]
+
+def generate_data_yaml(objects_array):
+    models_folder_location = f'{os.getcwd()}/models'    
+    data_yaml_filepath = f"{models_folder_location}/data.yaml"
+    object_classes = len(objects_array)
+    with open(data_yaml_filepath, "w") as file:
+        file.write(inspect.cleandoc(f'''train: ../train/images
+            val: ../train/images\n
+            nc: {object_classes}
+            names: {objects_array}'''))
+    yolo_model_version = input("Please input your yolov5 model version (e.g s, s6, x, ...): ")
+    write_custom_yolo_yaml(model_version=yolo_model_version, num_classes=object_classes)
+
+def write_custom_yolo_yaml(model_version, num_classes):
+   yolov5_models_directory = "../Object Detection Files/yolov5/models/"
+   model_version = str.strip(model_version).replace(" ", "")
+   pre_existing_yaml_location = find_files(f'yolov5{model_version}.yaml', f'{yolov5_models_directory}')[0]
+   
+   if (pre_existing_yaml_location == []):
+      print("Error: Yolo Provided Yaml Config File Not Found")
+      exit(1)
+
+   yaml = ruamel.yaml.YAML()
+   yaml.preserve_quotes = True
+   yaml.default_flow_style = False
+   
+   # Read Pre-existing Yaml Config File:
+   with open(f'{pre_existing_yaml_location}') as yamlFile:
+      yamlFileContents = yaml.load(yamlFile)
+      yaml.indent(offset=1)
+   
+   with open(yolov5_models_directory + f"/custom_yolov5{model_version}.yaml", 'w') as custom_yaml_file:
+      yamlFileContents['nc'] = num_classes
+      yaml.dump( yamlFileContents, custom_yaml_file)
+
+def find_files(filename, search_path):
+   result = []
+
+  # Wlaking top-down from the root
+   for root, dir, files in os.walk(search_path):
+      if filename in files:
+         result.append(os.path.join(root, filename))
+   return result
 
 if __name__ == "__main__":
     main()

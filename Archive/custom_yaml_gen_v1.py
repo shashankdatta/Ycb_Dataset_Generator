@@ -1,12 +1,11 @@
-import glob, os, time, torch, uuid, shutil, inspect
-import ruamel.yaml as yaml
+import glob, os, time, torch, uuid, shutil, inspect, ruamel.yaml
 from unittest import main
 from tkinter.ttk import Treeview 
 import numpy as np
 from matplotlib import pyplot as plt
 import cv2 as cv
 
-yolov5_models_directory = "./yolov5/models/"
+yolov5_models_directory = "../Object Detection Files/yolov5/models/"
 
 def find_files(filename, search_path):
    result = []
@@ -25,13 +24,18 @@ def writeCustomYaml(model_version, num_classes):
       print("Error: Yolo Provided Yaml Config File Not Found")
       exit(1)
 
+   yaml = ruamel.yaml.YAML()
+   yaml.preserve_quotes = True
+   yaml.default_flow_style = False
+   
    # Read Pre-existing Yaml Config File:
    with open(f'{pre_existing_yaml_location}') as yamlFile:
-      yamlFileContents = yaml.load(yamlFile, Loader=yaml.RoundTripLoader)
-
+      yamlFileContents = yaml.load(yamlFile)
+      yaml.indent(offset=1)
+   
    with open(yolov5_models_directory + f"/custom_yolov5{model_version}.yaml", 'w') as custom_yaml_file:
       yamlFileContents['nc'] = num_classes
-      yaml.dump(yamlFileContents, custom_yaml_file, Dumper=yaml.RoundTripDumper)
+      yaml.dump( yamlFileContents, custom_yaml_file)
 
 if __name__ == "__main__":
-   writeCustomYaml("s6", 300)
+   writeCustomYaml("x6", 250)
