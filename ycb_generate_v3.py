@@ -1,8 +1,9 @@
-import glob, os, time, torch, uuid, shutil, inspect, ruamel.yaml
 from tkinter.ttk import Treeview 
+from PIL import Image
+from matplotlib import pyplot as plt
+import glob, os, time, torch, uuid, shutil, inspect, ruamel.yaml
 import download_ycb_dataset as download_ycb
 import numpy as np
-from matplotlib import pyplot as plt
 import cv2 as cv
 
 def main():
@@ -87,9 +88,17 @@ def main():
             old_img_name = f'{ycb_download_location}/{object_name}/{img_name}'
             img_name_split = img_name.split('.')
             new_img_name = f'{images_folder_path}/{object_name}_{img_name_modified}.{file_unique_id}.{img_name_split[1]}'
+            
+            img = Image.open(old_img_name)
 
+            # Quality value = 0-95: 0 -> bad & 95 -> Best
+            # img = img.resize((640, 640)) # Low Quality (quality value = 75), Fast (3m 4sec)
+            img = img.resize((640, 640), Image.Resampling.LANCZOS) # High Quality (quality value = 95), Slow (4m 3sec)
+            img.save(new_img_name, 'JPEG', quality=95)
+
+            ## For Moving/Renaming Images:
             # os.rename(old_img_name, new_img_name)
-            shutil.move(old_img_name, new_img_name)
+            # shutil.move(old_img_name, new_img_name)
 
             ## For Matplotlib Plots:
             # fig = plt.figure(figsize = (7, 7))
