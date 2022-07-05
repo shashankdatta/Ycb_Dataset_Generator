@@ -15,11 +15,17 @@ def main():
     '''
 
     # model =  torch.hub.load('ultralytics/yolov5', 'yolov5x6')
-    model =  torch.hub.load('ultralytics/yolov5', 'custom', path='./best.pt', force_reload=True)
+    model =  torch.hub.load('ultralytics/yolov5', 'custom', path='../yolov5/runs/train/yolov5s_results/weights/best.pt', force_reload=True)
 
-    model.conf = 0.80  # confidence threshold (0-1)
-    model.iou = 0.70  # NMS IoU threshold (0-1)
+    model.conf = 0.70  # confidence threshold (0-1)
+    model.iou = 0.65  # NMS IoU threshold (0-1)
     # model.classes = [0]  # (optional list) filter by class, i.e. = [0, 15, 16] for persons, cats and dogs
+
+    # img = '../train/images/001_chips_can_N1_33_jpg-47e73f22-f374-11ec-b022-00155d1be361_jpg.rf.aa08a9a7853b0d2e3b7899d7fed8787f.jpg'
+
+    # results = model(img)
+    # results.show()
+
 
     # ReturnedArray = results.display(pprint=True,labels=True,crop=True)
     # for jsonObject in ReturnedArray:
