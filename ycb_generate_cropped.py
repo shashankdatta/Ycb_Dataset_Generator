@@ -1,8 +1,7 @@
 from tkinter.ttk import Treeview 
 from PIL import Image
 from matplotlib import pyplot as plt
-import glob, os, time, torch, uuid, shutil, inspect, ruamel.yaml
-
+import glob, os, time, torch, uuid, shutil, inspect, ruamel.yaml, json
 import download_ycb_dataset as download_ycb
 import numpy as np
 import cv2 as cv
@@ -11,13 +10,13 @@ def main():
     ycb_download_location = f'{os.getcwd()}/models/ycb'
 
     object_class = 0
-    objects_array = []
+    objects_dict = []
     
     ## Download All The Needed Models:
     download_ycb.main()
 
     for object_name in os.listdir(ycb_download_location):
-        objects_array.append(object_name)
+        objects_dict.append(objects_dict_new(object_name, 150, 800))
         
         images_folder_path = f'{ycb_download_location}/{object_name}/images'
         masks_directory_location = f'{ycb_download_location}/{object_name}/masks' 
@@ -55,14 +54,17 @@ def main():
 
             X,Y,W,H = cv.boundingRect(sorted_contours[0])
 
-            X = X - 30
-            Y = Y - 30
+            X = X - 40
+            Y = Y - 40
+
+            W = W + 70
+            H = H + 70
             
             old_img_name = f'{ycb_download_location}/{object_name}/{img_name}'
             org_img = cv.imread(old_img_name, -1)
 
-            cropped_mask_image = mask_img[Y:Y+H+65, X:X+W+65]
-            cropped_org_image = org_img[Y:Y+H+65, X:X+W+65]
+            cropped_mask_image = mask_img[Y:Y+H, X:X+W]
+            cropped_org_image = org_img[Y:Y+H, X:X+W]
 
             cv.imwrite(f'{masks_directory_location}/{mask_name}', cropped_mask_image)
             cv.imwrite(f'{ycb_download_location}/{object_name}/{img_name}', cropped_org_image)
@@ -105,7 +107,14 @@ def main():
             # cv.waitKey(1000) 
             # cv.destroyAllWindows()
         object_class += 1
-    # generate_data_yaml(objects_array)
+    yolo_model_version = input("Please input your yolov5 model version (e.g s, s6, x, ...): ")
+    write_custom_yolo_yaml(model_version=yolo_model_version, num_classes=len(objects_dict))
+    objects_dict = dict(enumerate(objects_dict))
+    with open(f"{ycb_download_location}/objects_dict_json.json", "w") as outfile:
+        json.dump(objects_dict, outfile, sort_keys=True, indent=4)
+
+def objects_dict_new(object_name, longest_min, longest_max):
+    return {'folder': object_name, 'longest_min': longest_min, 'longest_max': longest_max}
 
 def maskParseFilter(fname):
     prefix, n1, n2 = fname.split('_')
@@ -122,18 +131,6 @@ def normalize_bbox(label_index, xmin, ymin,
     w = w / w_img
     h = h / h_img
     return [label_index, xcenter, ycenter, w, h]
-
-def generate_data_yaml(objects_array):
-    models_folder_location = f'{os.getcwd()}/models'    
-    data_yaml_filepath = f"{models_folder_location}/data.yaml"
-    object_classes = len(objects_array)
-    with open(data_yaml_filepath, "w") as file:
-        file.write(inspect.cleandoc(f'''train: ../train/images
-            val: ../train/images\n
-            nc: {object_classes}
-            names: {objects_array}'''))
-    yolo_model_version = input("Please input your yolov5 model version (e.g s, s6, x, ...): ")
-    write_custom_yolo_yaml(model_version=yolo_model_version, num_classes=object_classes)
 
 def write_custom_yolo_yaml(model_version, num_classes):
    yolov5_models_directory = "../Object Detection Files/yolov5/models/"

@@ -1,0 +1,12 @@
+{
+    "0": {
+        "folder": "001_chips_can",
+        "longest_max": 800,
+        "longest_min": 150
+    },
+    "1": {
+        "folder": "004_sugar_box",
+        "longest_max": 800,
+        "longest_min": 150
+    }
+}
