@@ -11,12 +11,15 @@ def main():
 
     object_class = 0
     objects_dict = []
+
+    longest_min = 150 
+    longest_max = 800
     
     ## Download All The Needed Models:
     download_ycb.main()
 
     for object_name in os.listdir(ycb_download_location):
-        objects_dict.append(objects_dict_new(object_name, 150, 800))
+        objects_dict.append(objects_dict_new(object_name, longest_min, longest_max))
         
         images_folder_path = f'{ycb_download_location}/{object_name}/images'
         masks_directory_location = f'{ycb_download_location}/{object_name}/masks' 
@@ -66,9 +69,6 @@ def main():
             cropped_mask_image = mask_img[Y:Y+H, X:X+W]
             cropped_org_image = org_img[Y:Y+H, X:X+W]
 
-            cv.imwrite(f'{masks_directory_location}/{mask_name}', cropped_mask_image)
-            cv.imwrite(f'{ycb_download_location}/{object_name}/{img_name}', cropped_org_image)
-
             ## Drawing Rectangle Bounding Box On Images
             # cv.rectangle(img_rgb, (x, y), (x + w, y + h), (255,0,0), 5)
             # cv.rectangle(img_rgb, (x - 30, y - 30), (x + w + 65, y + h + 65), (255,0,0), 5)
@@ -79,11 +79,14 @@ def main():
             split_mask_name = mask_name.split('.')
             # print(split_mask_name)
 
-            new_img_name = f'{images_folder_path}/{img_name}'
             new_mask_name = f'{split_img_name[0]}.{split_mask_name[1]}'
             
-            shutil.move(old_img_name, new_img_name)
-            os.rename(f'{masks_directory_location}/{mask_name}',f'{masks_directory_location}/{new_mask_name}')
+            cv.imwrite(f'{images_folder_path}/{img_name}', cropped_org_image)
+            cv.imwrite(f'{masks_directory_location}/{new_mask_name}', cropped_mask_image)
+            
+            os.remove(old_img_name)
+            os.remove(f'{masks_directory_location}/{mask_name}')
+            
             ## For Matplotlib Plots:
             # fig = plt.figure(figsize = (7, 7))
             # ax = fig.add_subplot(111)
@@ -107,8 +110,7 @@ def main():
             # cv.waitKey(1000) 
             # cv.destroyAllWindows()
         object_class += 1
-    yolo_model_version = input("Please input your yolov5 model version (e.g s, s6, x, ...): ")
-    write_custom_yolo_yaml(model_version=yolo_model_version, num_classes=len(objects_dict))
+    # write_custom_yolo_yaml(num_classes=len(objects_dict))
     objects_dict = dict(enumerate(objects_dict))
     with open(f"{ycb_download_location}/objects_dict_json.json", "w") as outfile:
         json.dump(objects_dict, outfile, sort_keys=True, indent=4)
@@ -132,7 +134,8 @@ def normalize_bbox(label_index, xmin, ymin,
     h = h / h_img
     return [label_index, xcenter, ycenter, w, h]
 
-def write_custom_yolo_yaml(model_version, num_classes):
+def write_custom_yolo_yaml(num_classes):
+   model_version = input("Please input your yolov5 model version (e.g s, s6, x, ...): ")
    yolov5_models_directory = "../Object Detection Files/yolov5/models/"
    model_version = str.strip(model_version).replace(" ", "")
    pre_existing_yaml_location = find_files(f'yolov5{model_version}.yaml', f'{yolov5_models_directory}')[0]
@@ -157,7 +160,7 @@ def write_custom_yolo_yaml(model_version, num_classes):
 def find_files(filename, search_path):
    result = []
 
-  # Wlaking top-down from the root
+  # Walking top-down from the root
    for root, dir, files in os.walk(search_path):
       if filename in files:
          result.append(os.path.join(root, filename))

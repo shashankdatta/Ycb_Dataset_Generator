@@ -1,5 +1,6 @@
 # My Addtional Files To Ignore
 models/
+data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

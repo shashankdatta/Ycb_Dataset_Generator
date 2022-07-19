@@ -238,7 +238,7 @@ def main():
         1 => 1 object\n\t\
         2 => 2 objects\n\t\
         4 => 4 objects\n\t\
-        12 => 12 objects\n\t\
+        13 => 13 objects\n\t\
         911 => all objects\n\n\
         Your Response:\t")))
 
@@ -248,7 +248,7 @@ def main():
         objects_to_download = two_objects
     elif(user_input == 4):
         objects_to_download = four_Objects
-    elif(user_input == 12):
+    elif(user_input == 13):
         objects_to_download = more_objects
     elif(user_input == 911):
         objects_to_download = "all"
