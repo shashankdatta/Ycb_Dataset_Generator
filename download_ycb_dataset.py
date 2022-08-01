@@ -5,6 +5,7 @@
 
 # Modified to work with Python 3 by Sebastian Castro, 2020
 
+from curses.ascii import isdigit
 import os
 import sys
 import json
@@ -234,13 +235,16 @@ def check_url(url):
         return False
 
 def main():
-    user_input = int(input(inspect.cleandoc("Choose:\n\t\
+    user_input = input(inspect.cleandoc("Choose:\n\t\
         1 => 1 object\n\t\
         2 => 2 objects\n\t\
         4 => 4 objects\n\t\
         13 => 13 objects\n\t\
-        911 => all objects\n\n\
-        Your Response:\t")))
+        911 => all objects\n\t\
+        C = > object name (manual input)\n\n\
+        Your Response:\t"))
+
+    user_input = int(user_input) if isdigit(user_input) else user_input
 
     if(user_input == 1):
         objects_to_download = one_object
@@ -252,6 +256,8 @@ def main():
         objects_to_download = more_objects
     elif(user_input == 911):
         objects_to_download = "all"
+    elif(user_input in ('c', 'C')):
+        objects_to_download = [input('\nPlease enter the object name as listed by the YCB Dataset: ')]
 
     # Remove Models Folder:
     if(os.path.exists(models_folder_location)):

@@ -1,10 +1,5 @@
-from tkinter.ttk import Treeview 
-from PIL import Image
 from matplotlib import pyplot as plt
-import glob, os, time, torch, uuid, shutil, inspect, ruamel.yaml, json
-import download_ycb_dataset as download_ycb
-import numpy as np
-import cv2 as cv
+import glob, os, time, torch, uuid, shutil, inspect, ruamel.yaml, json, download_ycb_dataset as download_ycb, numpy as np, cv2 as cv
 
 def main():
     ycb_download_location = f'{os.getcwd()}/models/ycb'
@@ -110,7 +105,7 @@ def main():
             # cv.waitKey(1000) 
             # cv.destroyAllWindows()
         object_class += 1
-    # write_custom_yolo_yaml(num_classes=len(objects_dict))
+    write_custom_yolo_yaml(num_classes=len(objects_dict))  # Can be done manually too
     objects_dict = dict(enumerate(objects_dict))
     with open(f"{ycb_download_location}/objects_dict_json.json", "w") as outfile:
         json.dump(objects_dict, outfile, sort_keys=True, indent=4)
@@ -156,6 +151,7 @@ def write_custom_yolo_yaml(num_classes):
    with open(yolov5_models_directory + f"/custom_yolov5{model_version}.yaml", 'w') as custom_yaml_file:
       yamlFileContents['nc'] = num_classes
       yaml.dump( yamlFileContents, custom_yaml_file)
+      shutil.move('./models/ycb/objects_dict_json.json', './data/objects_dict_json.json')
 
 def find_files(filename, search_path):
    result = []
