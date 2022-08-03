@@ -1,6 +1,6 @@
 # My Addtional Files To Ignore
 models/
-# data/
+data/
 custom_dataset/
 
 # Byte-compiled / optimized / DLL files
