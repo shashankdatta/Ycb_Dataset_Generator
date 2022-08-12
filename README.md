@@ -4,7 +4,7 @@
 ### Commands to be executed in order:
 1. ```git clone``` [Ycb_Dataset_Generator](https://github.com/VT-Collab/Ycb_Dataset_Generator.git)
 2. ```cd ./Ycb_Dataset_Generator```
-4. Setup and install ```Python 3.7.12``` or ```Python 3.8.0``` using [Pyenv](https://realpython.com/intro-to-pyenv/). **Create** and **activate** a new python environment named '**YCB_generator**' running Python 3.7.12 or Python 3.8.0. (This step is required to successfully meet all the requirements)
+4. Setup and install ```Python 3.7.12``` or ```Python 3.8.0``` using [Pyenv](https://realpython.com/intro-to-pyenv/). **CREATE** and **ACTIVATE** a new python environment named '**YCB_generator**' running Python 3.7.12 or Python 3.8.0. (This step is required to successfully meet all the requirements)
 3. ```pip install -r ./Requirements/requirements.txt```
 4. ```python ./ycb_generate_cropped.py``` (Generates cropped images & masks of the YCB object(s))
 5. ```mv ./models/ycb/* ./data``` (To use cropped objects from previous step in dataset generatation)
