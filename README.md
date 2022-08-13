@@ -22,7 +22,7 @@
 * You can change the name of the custom dataset, number of images generated per split, andd add new split.
 ![image](https://user-images.githubusercontent.com/68425706/184442187-a4640d8c-4c72-4046-a4b1-b0de7be340c2.png)
 
-### Resize dataset images
+### Resize dataset images:
 * Recommended image sizes: ```640x640``` OR ```416x416```
 ![image](https://user-images.githubusercontent.com/68425706/184442086-41e810f8-a338-437e-ab8b-ccf11fcc835a.png)
 
