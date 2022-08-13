@@ -26,3 +26,5 @@
 * Recommended image sizes: ```640x640``` OR ```416x416```
 ![image](https://user-images.githubusercontent.com/68425706/184442086-41e810f8-a338-437e-ab8b-ccf11fcc835a.png)
 
+## Dataset Tips For Best Results:
+![image](https://user-images.githubusercontent.com/68425706/184452394-d01beb14-67d3-45e5-b8fd-cb5d36e6c683.png)
