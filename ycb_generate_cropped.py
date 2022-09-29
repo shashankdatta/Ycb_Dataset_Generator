@@ -105,10 +105,10 @@ def main():
             # cv.waitKey(1000) 
             # cv.destroyAllWindows()
         object_class += 1
-    write_custom_yolo_yaml(num_classes=len(objects_dict))  # Can be done manually too
     objects_dict = dict(enumerate(objects_dict))
     with open(f"{ycb_download_location}/objects_dict_json.json", "w") as outfile:
         json.dump(objects_dict, outfile, sort_keys=True, indent=4)
+    write_custom_yolo_yaml(num_classes=len(objects_dict))  # Can be done manually too
 
 def objects_dict_new(object_name, longest_min, longest_max):
     return {'folder': object_name, 'longest_min': longest_min, 'longest_max': longest_max}
